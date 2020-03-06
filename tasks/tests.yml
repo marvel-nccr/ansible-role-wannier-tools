@@ -1,0 +1,6 @@
+---
+- name: run wannier_tools test
+  command: "sh run_test_Bi2Se3.sh"
+  args:
+    chdir: "{{ wannier_tools_topdir }}/examples"
+    creates: "{{ wannier_tools_topdir }}/examples/Bi2Se3/WT.out"

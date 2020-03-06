@@ -1,0 +1,14 @@
+---
+wannier_tools_version: "2.5.1"
+wannier_tools_src: "v{{ wannier_tools_version }}"
+wannier_tools_src_archive: "{{ wannier_tools_src }}.tar.gz"
+wannier_tools_code_folder: "/tmp"
+wannier_tools_prefix: "/usr/local"
+wannier_tools_url: "https://github.com/quanshengwu/wannier_tools/archive/{{ wannier_tools_src_archive }}"
+wannier_tools_topdir: "{{ wannier_tools_code_folder }}/wannier_tools-{{ wannier_tools_version }}"
+
+wannier_tools_executables:
+  - name: wt
+    execname: wt.x
+    # plugin: wannier90.wannier90
+    folder: "{{ wannier_tools_prefix }}/bin"

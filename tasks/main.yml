@@ -1,0 +1,55 @@
+---
+- name: Install libraries
+  become: true
+  apt:
+    name:
+      # Compilation
+      - build-essential
+      - gfortran
+      - openmpi-common
+      - openmpi-bin
+      - libopenmpi-dev
+      - liblapack-dev
+      - libblas-dev
+
+# Will only download once
+- name: Get wannier_tools source
+  get_url:
+    url: "{{ wannier_tools_url }}"
+    dest: "{{ wannier_tools_code_folder }}/{{  wannier_tools_src_archive }}"
+  register: wannier_tools_download
+
+- name: Extract wannier_tools source
+  # ansiblelint disable rule:line-length
+  unarchive:
+    src: "{{ wannier_tools_download.dest }}"
+    dest: "{{ wannier_tools_code_folder }}"
+    remote_src: true
+  when: wannier_tools_download.changed
+
+- name: Copy Makefile
+  copy:
+    src: "{{ wannier_tools_topdir }}/src/Makefile.gfortran-mpi"
+    dest: "{{ wannier_tools_topdir }}/src/Makefile"
+    remote_src: true
+
+- name: Make wannier_tools executables
+  command: "make"
+  args:
+    creates: "{{ wannier_tools_topdir }}/bin/wt.x"
+    chdir: "{{ wannier_tools_topdir }}/src"
+  register: wannier_tools_make
+
+- name: Install wannier_tools executables
+  become: true
+  copy:
+    src: "{{ wannier_tools_topdir }}/bin/{{ item.execname }}"
+    dest: "{{ item.folder }}/"
+    remote_src: true
+    mode: '0755'
+  with_items: "{{ wannier_tools_executables }}"
+  register: wannier_tools_install
+
+- name: wannier_tools tests
+  import_tasks: tests.yml
+  when: wannier_tools_make.changed and run_tests is defined and run_tests
